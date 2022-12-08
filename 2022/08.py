@@ -12,7 +12,6 @@ def main():
     scenic_score = []
 
     with open('08.in') as input:
-        row = 0
         for line in input.read().splitlines():
             trees = [ int(height) for height in list(line) ]
             forest.append(trees)
