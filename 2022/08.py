@@ -4,7 +4,7 @@ import time
 from functools import reduce
 import operator
 
-directions = [ [ 0, -1, 0, 1 ], [ 1, 0, 0, 0 ], [ 0, 1, 0, 0 ], [ -1, 0, 1, 0 ] ]
+directions = [ [ 0, -1 ], [ 1, 0 ], [ 0, 1 ], [ -1, 0 ] ]
 
 def main():
     forest = []
