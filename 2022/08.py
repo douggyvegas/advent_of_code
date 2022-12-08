@@ -37,7 +37,8 @@ def main():
                         look_y += direction[1]
 
                     visible[x][y] |= not view_is_blocked
-                    scenic_score[x][y] = reduce(operator.mul, tree_scenic_score)
+                    
+                scenic_score[x][y] = reduce(operator.mul, tree_scenic_score)
 
     print("part1:", len([ v for row in visible for v in row if v == True ]))
     print("part2:", max([ s for row in scenic_score for s in row ]))
