@@ -31,7 +31,7 @@ def main():
                     while look_x >= 0 and look_x < columns and look_y >= 0 and look_y < rows:
                         if not view_is_blocked:
                             tree_scenic_score[d] += 1
-                            view_is_blocked = forest[look_x][look_y] >= forest[x][y]:
+                            view_is_blocked = forest[look_x][look_y] >= forest[x][y]
                         look_x += direction[0]
                         look_y += direction[1]
 
