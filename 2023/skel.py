@@ -1,4 +1,5 @@
 import time
+import re
 
 def main():
     with open("xx.ex") as input:
