@@ -56,6 +56,28 @@ def main():
                     if saved_picos >= 100:
                         part1 += 1
 
+    max_picos = 20
+    cheats: dict[tuple[tuple[int, int], tuple[int, int]], int] = {}
+    for row, line in enumerate(track):
+        for m in re.finditer(r"\.|S", line):
+            pos = (m.start(), row)
+            for dx in range(-max_picos, max_picos + 1):
+                for dy in range(-max_picos + abs(dx), max_picos - abs(dx) + 1):
+                    cheat_pos = (pos[0] + dx, pos[1] + dy)
+                    if (
+                        0 <= cheat_pos[0] < len(track[0])
+                        and 0 <= cheat_pos[1] < len(track)
+                        and (
+                            track[cheat_pos[1]][cheat_pos[0]] == "."
+                            or track[cheat_pos[1]][cheat_pos[0]] == "E"
+                        )
+                    ):
+                        cheat_picos = picos[pos][0] + abs(dx) + abs(dy) + picos[cheat_pos][1]
+                        saved_picos = total_picos - cheat_picos
+                        cheats[(pos, cheat_pos)] = saved_picos 
+    
+    part2 = len([ cheat for cheat, saved_picos in cheats.items() if saved_picos >= 100 ])
+
     print("part 1:", part1)
     print("part 2:", part2)
 
