@@ -1,6 +1,33 @@
 from functools import lru_cache
 import time
 
+keymap: dict[tuple[str, str], str] = {}
+keymap[('<','<')] = ''
+keymap[('<','>')] = '>>'
+keymap[('<','^')] = '>^'
+keymap[('<','v')] = '>'
+keymap[('<','A')] = '>>^'
+keymap[('>','<')] = '<<'
+keymap[('>','>')] = ''
+keymap[('>','^')] = '<^'
+keymap[('>','v')] = '<'
+keymap[('>','A')] = '^'
+keymap[('^','>')] = 'v>'
+keymap[('^','<')] = 'v<'
+keymap[('^','^')] = ''
+keymap[('^','v')] = 'v'
+keymap[('^','A')] = '>'
+keymap[('v','<')] = '<'
+keymap[('v','>')] = '>'
+keymap[('v','^')] = '^'
+keymap[('v','v')] = ''
+keymap[('v','A')] = '^>'
+keymap[('A','<')] = 'v<<'
+keymap[('A','>')] = 'v'
+keymap[('A','^')] = '<'
+keymap[('A','v')] = '<v'
+keymap[('A','A')] = ''
+
 @lru_cache(maxsize=None)
 def move_from_to(from_key: str, to_key: str) -> str:
     keypad = {'7':(0,0), '8':(1,0), '9':(2,0),
@@ -42,65 +69,41 @@ def main():
         for line in input.read().splitlines():
             combinations += [ line ]
 
-    print(combinations)
-
-    keymap: dict[tuple[str, str], str] = {}
-    keymap[('<','<')] = ''
-    keymap[('<','>')] = '>>'
-    keymap[('<','^')] = '>^'
-    keymap[('<','v')] = '>'
-    keymap[('<','A')] = '>>^'
-    keymap[('>','<')] = '<<'
-    keymap[('>','>')] = ''
-    keymap[('>','^')] = '<^'
-    keymap[('>','v')] = '<'
-    keymap[('>','A')] = '^'
-    keymap[('^','>')] = 'v>'
-    keymap[('^','<')] = 'v<'
-    keymap[('^','^')] = ''
-    keymap[('^','v')] = 'v'
-    keymap[('^','A')] = '>'
-    keymap[('v','<')] = '<'
-    keymap[('v','>')] = '>'
-    keymap[('v','^')] = '^'
-    keymap[('v','v')] = ''
-    keymap[('v','A')] = '>^'
-    keymap[('A','<')] = 'v<<'
-    keymap[('A','>')] = 'v'
-    keymap[('A','^')] = '<'
-    keymap[('A','v')] = '<v'
-    keymap[('A','A')] = ''
-    
-    part1 = solve(combinations, keymap, 3)
+    part1 = solve(combinations, 2)
     print('part 1:', part1)
-                
-    part2 = solve(combinations, keymap, 26)
+
+    part2 = solve(combinations, 25)
     print('part 2:', part2)
 
-def solve(combinations, keymap, number_of_keypads):
+def solve(combinations, number_of_keypads) -> int:
     res = 0
     for combination in combinations:
-        print(combination)
-        keys: list[str] = [ "" ] * number_of_keypads
-        from_key = 'A'
-        keys[0] = ""
-        for to_key in combination:
-            keys[0] += move_from_to(from_key, to_key)
-            keys[0] += 'A'
-            from_key = to_key
-    
-        for keypad in range(1, number_of_keypads):
-            from_key = 'A'
-            for to_key in keys[keypad - 1]:
-                keys[keypad] += keymap[(from_key, to_key)]
-                keys[keypad] += 'A'
-                from_key = to_key
-       
-        for keypad in range(0, number_of_keypads):
-            print(keys[keypad])
-                
-        res += len(keys[2]) * int(combination[:-1])
-    
+        res += int(combination[:-1]) * solveCombination(number_of_keypads, combination)
+
+    return res
+
+def solveCombination(number_of_keypads, combination) -> int:
+    from_key = 'A'
+    keys: str = ""
+    res = 0
+    for c in combination:
+        keys += move_from_to(from_key, c)
+        keys += 'A'
+        from_key = c
+
+    res += countKeysForKeypad(tuple(keys), number_of_keypads)
+    return res
+
+@lru_cache(maxsize=None)
+def countKeysForKeypad(keys, keypad) -> int:
+    from_key = 'A'
+    res = 0
+    if keypad == 0:
+        return len(keys)
+    for to_key in keys:
+        keypad_keys = keymap[(from_key, to_key)] + 'A'
+        res += countKeysForKeypad(tuple(keypad_keys), keypad - 1)     
+        from_key = to_key
     return res
 
 start_time = time.time_ns()
