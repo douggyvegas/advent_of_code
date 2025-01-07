@@ -1,4 +1,5 @@
 import copy
+from functools import cmp_to_key
 import time
 import re
 from typing import Self
@@ -11,9 +12,9 @@ class Node:
     init: bool
 
     def __init__(self: Self, i1: str, op: str, i2: str, out: str, init: bool = False):
-        self.i1 = i1
+        self.i1 = i1 if i1 <= i2 else i2
         self.op = op
-        self.i2 = i2
+        self.i2 = i2 if i1 <= i2 else i1
         self.out = out
         self.init = init
 
@@ -45,6 +46,36 @@ class Node:
             a2 = gates[self.i2].getAncestors(gates)
             return set([self]) | a1 | a2
 
+def compareGates(g1: Node, g2: Node):
+    BEFORE=-1
+    AFTER=1
+    res = 0
+    if g1.i1.startswith("x"):
+        if g2.i1.startswith("x"):
+            if g1.i1 < g2.i1:
+                res = BEFORE
+            elif g1.i1 > g2.i1:
+                res = AFTER
+        else:
+            res = BEFORE
+    elif g1.i1.startswith("y"):
+        if g2.i1.startswith("x"):
+            res = AFTER
+        elif g2.i1.startswith("y"):
+            if g1.i1 < g2.i1:
+                res = BEFORE
+            elif g1.i1 > g2.i1:
+                res = AFTER
+        else:
+            res = BEFORE
+    else:
+        if g1.i1 < g2.i1:
+            res = BEFORE
+        elif g1.i1 > g2.i1:
+            res = AFTER
+    print(g1.i1, g2.i1, res)
+    return res
+
 def main():
     part1 = 0
     part2 = 0
@@ -74,40 +105,13 @@ def main():
 
     print('part 1:', part1)
 
-    x = 0
-    y = 0
-    x_pattern = re.compile(r'x\d+')
-    y_pattern = re.compile(r'y\d+')
-    for gate in gates.values():
-        if x_pattern.match(gate.out) is not None:
-            x += gate.compute(gates, {}) << int(gate.out[1:])
-        elif y_pattern.match(gate.out) is not None:
-            y += gate.compute(gates, {}) << int(gate.out[1:])
-    expected = x + y
-    print(expected, part1)
-    wrong_bits = expected ^ part1
-    good_bits = ~wrong_bits & ((1 << (expected.bit_length())) - 1)
-    swap_candidates: set[Node] = set()
-    print("{0:b}".format(wrong_bits))
-    print("{0:b}".format(good_bits))
-    wrong_gates: list[Node] = []
-    for bit in range(wrong_bits.bit_length()):
-        if wrong_bits & (1 << bit) != 0:
-            out = "z" + "{:02d}".format(bit)
-            gate = gates[out]
-            if gate is not None:
-                swap_candidates |= gate.getAncestors(gates)
-                wrong_gates.append(gate)
-
-    print(wrong_gates)
-    print(len(swap_candidates))    
-
-    # identify culprit for each wrong bit
-    for gate in wrong_gates:
-        # check ancestors
-        
-                                                                
-            
+    with open("24.mmd", "w") as out:
+        out.write("flowchart TD\n")
+        for gate in sorted(list(gates.values()), key=cmp_to_key(compareGates)):
+            if gate.i1 != "":
+                out.write(f"\t{gate.i1}{{{gate.i1}}} --> {id(gate)}[{gate.op}]\n")
+                out.write(f"\t{gate.i2}{{{gate.i2}}} --> {id(gate)}[{gate.op}]\n")
+                out.write(f"\t{id(gate)}[{gate.op}] --> {gate.out}{{{gate.out}}}\n")
 
     print('part 2:', part2)
 
