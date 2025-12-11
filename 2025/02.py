@@ -1,3 +1,4 @@
+import re
 import time
 
 def main():
@@ -12,24 +13,14 @@ def main():
 
     for r in ranges:
         ids = r.split("-")
-
         print(r)
-
-        l = len(ids[0]) // 2
-        if l == 0:
-            l = 1
-
-        start = int(ids[0][:l])
-        end = int(ids[1][:len(ids[1]) - len(ids[0]) + l])
-
-        print("start,end =", start, end)
-
-        for i in range(start, end + 1):
-            n = int(''.join([ str(i),str(i) ]))
-
-            if n >= int(ids[0]) and n <= int(ids[1]):
+        start = int(ids[0])
+        end = int(ids[1])
+        for n in range(start, end + 1):
+            if re.match(r"^(\d+)\1$", str(n)) is not None:
                 part1 += n
-
+            if re.match(r"^(\d+)\1+$", str(n)) is not None:
+                part2 += n
 
     print('part 1:', part1)
     print('part 2:', part2)

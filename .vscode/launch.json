@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "internalConsole",
             "justMyCode": true,
-            "cwd": "${workspaceFolder}/2024"
+            "cwd": "${workspaceFolder}/2025"
         }
     ]
 }
